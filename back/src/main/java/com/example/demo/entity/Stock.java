@@ -6,26 +6,33 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "stocks")
 public class Stock {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pharmacy_id", nullable = false)
     private Pharmacy pharmacy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medicine_id", nullable = false)
     private Medicine medicine;
 
+    @Column(nullable = false)
     private int quantity;
+
+    @Column(nullable = false)
     private double price;
+
+    @Column(name = "arrival_date", nullable = false)
     private LocalDate arrivalDate;
 
     // Конструкторы
     public Stock() {}
 
-    public Stock(Pharmacy pharmacy, Medicine medicine, int quantity, double price, LocalDate arrivalDate) {
+    public Stock(Pharmacy pharmacy, Medicine medicine, int quantity,
+                 double price, LocalDate arrivalDate) {
         this.pharmacy = pharmacy;
         this.medicine = medicine;
         this.quantity = quantity;
@@ -36,6 +43,10 @@ public class Stock {
     // Геттеры и сеттеры
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Pharmacy getPharmacy() {

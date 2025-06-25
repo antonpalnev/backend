@@ -1,59 +1,86 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.StockRequest;
+import com.example.demo.entity.Medicine;
+import com.example.demo.entity.Pharmacy;
 import com.example.demo.entity.Stock;
+import com.example.demo.repository.MedicineRepository;
+import com.example.demo.repository.PharmacyRepository;
 import com.example.demo.repository.StockRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
-@Transactional
 public class StockService {
-    private final StockRepository repository;
 
-    public StockService(StockRepository repository) {
-        this.repository = repository;
+    private final StockRepository stockRepository;
+    private final PharmacyRepository pharmacyRepository;
+    private final MedicineRepository medicineRepository;
+
+    public StockService(StockRepository stockRepository,
+                        PharmacyRepository pharmacyRepository,
+                        MedicineRepository medicineRepository) {
+        this.stockRepository = stockRepository;
+        this.pharmacyRepository = pharmacyRepository;
+        this.medicineRepository = medicineRepository;
+    }
+
+    public List<Stock> getAll() {
+        return stockRepository.findAll();
+    }
+
+    public Stock getById(Long id) {
+        return stockRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Stock not found"));
     }
 
     public Stock create(Stock stock) {
-        return repository.save(stock);
+        return stockRepository.save(stock);
     }
 
-    public List<Stock> findAll() {
-        return repository.findAll();
-    }
-
-    public Stock findById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Stock not found with id: " + id));
-    }
-
-    public Stock update(Long id, Stock stockDetails) {
-        Stock stock = findById(id);
-        stock.setQuantity(stockDetails.getQuantity());
-        stock.setPrice(stockDetails.getPrice());
-        stock.setArrivalDate(stockDetails.getArrivalDate());
-        return repository.save(stock);
+    public Stock update(Long id, Stock updatedStock) {
+        Stock existing = getById(id);
+        existing.setPharmacy(updatedStock.getPharmacy());
+        existing.setMedicine(updatedStock.getMedicine());
+        existing.setQuantity(updatedStock.getQuantity());
+        existing.setPrice(updatedStock.getPrice());
+        existing.setArrivalDate(updatedStock.getArrivalDate());
+        return stockRepository.save(existing);
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        stockRepository.deleteById(id);
     }
 
-    // Остальные методы остаются без изменений
-    public List<Stock> findByPharmacyId(Long pharmacyId) {
-        return repository.findByPharmacyId(pharmacyId);
+    public Stock createFromDto(StockRequest dto) {
+        Pharmacy pharmacy = pharmacyRepository.findById(dto.getPharmacyId())
+                .orElseThrow(() -> new RuntimeException("Pharmacy not found"));
+        Medicine medicine = medicineRepository.findById(dto.getMedicineId())
+                .orElseThrow(() -> new RuntimeException("Medicine not found"));
+
+        Stock stock = new Stock();
+        stock.setPharmacy(pharmacy);
+        stock.setMedicine(medicine);
+        stock.setQuantity(dto.getQuantity());
+        stock.setPrice(dto.getPrice());
+        stock.setArrivalDate(dto.getArrivalDate());
+        return stockRepository.save(stock);
     }
 
-    public List<Stock> findByMedicineId(Long medicineId) {
-        return repository.findByMedicineId(medicineId);
-    }
+    public Stock updateFromDto(Long id, StockRequest dto) {
+        Stock stock = getById(id);
 
-    public List<Stock> findByPriceLessThan(double price) {
-        return repository.findByPriceLessThan(price);
-    }
+        Pharmacy pharmacy = pharmacyRepository.findById(dto.getPharmacyId())
+                .orElseThrow(() -> new RuntimeException("Pharmacy not found"));
+        Medicine medicine = medicineRepository.findById(dto.getMedicineId())
+                .orElseThrow(() -> new RuntimeException("Medicine not found"));
 
-    public List<Stock> findByQuantityGreaterThan(int quantity) {
-        return repository.findByQuantityGreaterThan(quantity);
+        stock.setPharmacy(pharmacy);
+        stock.setMedicine(medicine);
+        stock.setQuantity(dto.getQuantity());
+        stock.setPrice(dto.getPrice());
+        stock.setArrivalDate(dto.getArrivalDate());
+        return stockRepository.save(stock);
     }
 }

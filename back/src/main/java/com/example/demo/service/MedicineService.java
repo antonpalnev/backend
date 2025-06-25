@@ -1,53 +1,64 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.MedicineRequest;
 import com.example.demo.entity.Medicine;
 import com.example.demo.repository.MedicineRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 public class MedicineService {
-    private final MedicineRepository repository;
 
-    public MedicineService(MedicineRepository repository) {
-        this.repository = repository;
+    private final MedicineRepository medicineRepository;
+
+    public MedicineService(MedicineRepository medicineRepository) {
+        this.medicineRepository = medicineRepository;
     }
 
-    public Medicine create(Medicine medicine) {
-        return repository.save(medicine);
+    public List<Medicine> getAll() {
+        return medicineRepository.findAll();
     }
 
-    public List<Medicine> findAll() {
-        return repository.findAll();
-    }
-
-    public Medicine findById(Long id) {
-        return repository.findById(id)
+    public Medicine getById(Long id) {
+        return medicineRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Medicine not found"));
     }
 
-    public Medicine update(Long id, Medicine medicineDetails) {
-        Medicine medicine = findById(id);
-        medicine.setName(medicineDetails.getName());
-        medicine.setCategory(medicineDetails.getCategory());
-        medicine.setManufacturer(medicineDetails.getManufacturer());
-        medicine.setForm(medicineDetails.getForm());
-        medicine.setDosage(medicineDetails.getDosage());
-        return repository.save(medicine);
+    public Medicine create(Medicine medicine) {
+        return medicineRepository.save(medicine);
+    }
+
+    public Medicine update(Long id, Medicine updatedMedicine) {
+        Medicine existing = getById(id);
+        existing.setName(updatedMedicine.getName());
+        existing.setCategory(updatedMedicine.getCategory());
+        existing.setManufacturer(updatedMedicine.getManufacturer());
+        existing.setForm(updatedMedicine.getForm());
+        existing.setDosage(updatedMedicine.getDosage());
+        return medicineRepository.save(existing);
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        medicineRepository.deleteById(id);
     }
 
-    public List<Medicine> findByCategory(String category) {
-        return repository.findByCategory(category);
+    public Medicine updateFromDto(Long id, MedicineRequest dto) {
+        Medicine medicine = getById(id);
+        medicine.setName(dto.getName());
+        medicine.setCategory(dto.getCategory());
+        medicine.setManufacturer(dto.getManufacturer());
+        medicine.setForm(dto.getForm());
+        medicine.setDosage(dto.getDosage());
+        return medicineRepository.save(medicine);
     }
-
-    public List<Medicine> findByNameContaining(String name) {
-        return repository.findByNameContainingIgnoreCase(name);
+    public Medicine createFromDto(MedicineRequest dto) {
+        Medicine medicine = new Medicine();
+        medicine.setName(dto.getName());
+        medicine.setCategory(dto.getCategory());
+        medicine.setManufacturer(dto.getManufacturer());
+        medicine.setForm(dto.getForm());
+        medicine.setDosage(dto.getDosage());
+        return medicineRepository.save(medicine);
     }
 }

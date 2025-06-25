@@ -1,47 +1,51 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.PharmacyRequest;
+import com.example.demo.dto.PharmacyResponse;
 import com.example.demo.entity.Pharmacy;
 import com.example.demo.service.PharmacyService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/pharmacies")
 public class PharmacyController {
-    private final PharmacyService service;
 
-    public PharmacyController(PharmacyService service) {
-        this.service = service;
+    private final PharmacyService pharmacyService;
+
+    public PharmacyController(PharmacyService pharmacyService) {
+        this.pharmacyService = pharmacyService;
     }
 
     @GetMapping
-    public List<Pharmacy> getAll() {
-        return service.findAll();
+    public List<PharmacyResponse> getAllPharmacies() {
+        return pharmacyService.getAll().stream()
+                .map(PharmacyResponse::new)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
-    public Pharmacy getById(@PathVariable Long id) {
-        return service.findById(id);
+    public PharmacyResponse getPharmacyById(@PathVariable Long id) {
+        Pharmacy pharmacy = pharmacyService.getById(id);
+        return new PharmacyResponse(pharmacy);
     }
 
     @PostMapping
-    public Pharmacy create(@RequestBody Pharmacy pharmacy) {
-        return service.create(pharmacy);
+    public PharmacyResponse createPharmacy(@RequestBody PharmacyRequest pharmacyRequest) {
+        Pharmacy pharmacy = pharmacyService.createFromDto(pharmacyRequest);
+        return new PharmacyResponse(pharmacy);
     }
 
     @PutMapping("/{id}")
-    public Pharmacy update(@PathVariable Long id, @RequestBody Pharmacy pharmacy) {
-        return service.update(id, pharmacy);
+    public PharmacyResponse updatePharmacy(@PathVariable Long id, @RequestBody PharmacyRequest pharmacyRequest) {
+        Pharmacy pharmacy = pharmacyService.updateFromDto(id, pharmacyRequest);
+        return new PharmacyResponse(pharmacy);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
-    }
-
-    @GetMapping("/search")
-    public List<Pharmacy> searchByAddress(@RequestParam String address) {
-        return service.findByAddressContaining(address);
+    public void deletePharmacy(@PathVariable Long id) {
+        pharmacyService.delete(id);
     }
 }

@@ -1,46 +1,56 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.PharmacyRequest;
 import com.example.demo.entity.Pharmacy;
 import com.example.demo.repository.PharmacyRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 public class PharmacyService {
-    private final PharmacyRepository repository;
 
-    public PharmacyService(PharmacyRepository repository) {
-        this.repository = repository;
+    private final PharmacyRepository pharmacyRepository;
+
+    public PharmacyService(PharmacyRepository pharmacyRepository) {
+        this.pharmacyRepository = pharmacyRepository;
     }
 
-    public Pharmacy create(Pharmacy pharmacy) {
-        return repository.save(pharmacy);
+    public List<Pharmacy> getAll() {
+        return pharmacyRepository.findAll();
     }
 
-    public List<Pharmacy> findAll() {
-        return repository.findAll();
-    }
-
-    public Pharmacy findById(Long id) {
-        return repository.findById(id)
+    public Pharmacy getById(Long id) {
+        return pharmacyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pharmacy not found"));
     }
 
-    public Pharmacy update(Long id, Pharmacy pharmacyDetails) {
-        Pharmacy pharmacy = findById(id);
-        pharmacy.setAddress(pharmacyDetails.getAddress());
-        pharmacy.setPhone(pharmacyDetails.getPhone());
-        return repository.save(pharmacy);
+    public Pharmacy create(Pharmacy pharmacy) {
+        return pharmacyRepository.save(pharmacy);
+    }
+
+    public Pharmacy update(Long id, Pharmacy updatedPharmacy) {
+        Pharmacy existing = getById(id);
+        existing.setAddress(updatedPharmacy.getAddress());
+        existing.setPhone(updatedPharmacy.getPhone());
+        return pharmacyRepository.save(existing);
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        pharmacyRepository.deleteById(id);
     }
 
-    public List<Pharmacy> findByAddressContaining(String address) {
-        return repository.findByAddressContainingIgnoreCase(address);
+    public Pharmacy createFromDto(PharmacyRequest dto) {
+        Pharmacy pharmacy = new Pharmacy();
+        pharmacy.setAddress(dto.getAddress());
+        pharmacy.setPhone(dto.getPhone());
+        return pharmacyRepository.save(pharmacy);
+    }
+
+    public Pharmacy updateFromDto(Long id, PharmacyRequest dto) {
+        Pharmacy pharmacy = getById(id);
+        pharmacy.setAddress(dto.getAddress());
+        pharmacy.setPhone(dto.getPhone());
+        return pharmacyRepository.save(pharmacy);
     }
 }
