@@ -36,7 +36,7 @@ public class StockService {
     }
 
     public Stock create(Stock stock) {
-        return stockRepository.save(stock);
+        return stockRepository.saveAndFlush(stock);
     }
 
     public Stock update(Long id, Stock updatedStock) {
@@ -46,11 +46,12 @@ public class StockService {
         existing.setQuantity(updatedStock.getQuantity());
         existing.setPrice(updatedStock.getPrice());
         existing.setArrivalDate(updatedStock.getArrivalDate());
-        return stockRepository.save(existing);
+        return stockRepository.saveAndFlush(existing);
     }
 
     public void delete(Long id) {
         stockRepository.deleteById(id);
+        stockRepository.flush();
     }
 
     public Stock createFromDto(StockRequest dto) {
@@ -65,7 +66,7 @@ public class StockService {
         stock.setQuantity(dto.getQuantity());
         stock.setPrice(dto.getPrice());
         stock.setArrivalDate(dto.getArrivalDate());
-        return stockRepository.save(stock);
+        return stockRepository.saveAndFlush(stock);
     }
 
     public Stock updateFromDto(Long id, StockRequest dto) {
@@ -81,6 +82,6 @@ public class StockService {
         stock.setQuantity(dto.getQuantity());
         stock.setPrice(dto.getPrice());
         stock.setArrivalDate(dto.getArrivalDate());
-        return stockRepository.save(stock);
+        return stockRepository.saveAndFlush(stock);
     }
 }

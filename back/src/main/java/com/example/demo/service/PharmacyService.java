@@ -26,31 +26,32 @@ public class PharmacyService {
     }
 
     public Pharmacy create(Pharmacy pharmacy) {
-        return pharmacyRepository.save(pharmacy);
+        return pharmacyRepository.saveAndFlush(pharmacy);
     }
 
     public Pharmacy update(Long id, Pharmacy updatedPharmacy) {
         Pharmacy existing = getById(id);
         existing.setAddress(updatedPharmacy.getAddress());
         existing.setPhone(updatedPharmacy.getPhone());
-        return pharmacyRepository.save(existing);
+        return pharmacyRepository.saveAndFlush(existing);
     }
 
     public void delete(Long id) {
         pharmacyRepository.deleteById(id);
+        pharmacyRepository.flush();
     }
 
     public Pharmacy createFromDto(PharmacyRequest dto) {
         Pharmacy pharmacy = new Pharmacy();
         pharmacy.setAddress(dto.getAddress());
         pharmacy.setPhone(dto.getPhone());
-        return pharmacyRepository.save(pharmacy);
+        return pharmacyRepository.saveAndFlush(pharmacy);
     }
 
     public Pharmacy updateFromDto(Long id, PharmacyRequest dto) {
         Pharmacy pharmacy = getById(id);
         pharmacy.setAddress(dto.getAddress());
         pharmacy.setPhone(dto.getPhone());
-        return pharmacyRepository.save(pharmacy);
+        return pharmacyRepository.saveAndFlush(pharmacy);
     }
 }

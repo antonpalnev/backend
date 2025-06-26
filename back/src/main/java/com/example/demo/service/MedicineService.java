@@ -26,7 +26,7 @@ public class MedicineService {
     }
 
     public Medicine create(Medicine medicine) {
-        return medicineRepository.save(medicine);
+        return medicineRepository.saveAndFlush(medicine);
     }
 
     public Medicine update(Long id, Medicine updatedMedicine) {
@@ -36,11 +36,12 @@ public class MedicineService {
         existing.setManufacturer(updatedMedicine.getManufacturer());
         existing.setForm(updatedMedicine.getForm());
         existing.setDosage(updatedMedicine.getDosage());
-        return medicineRepository.save(existing);
+        return medicineRepository.saveAndFlush(existing);
     }
 
     public void delete(Long id) {
         medicineRepository.deleteById(id);
+        medicineRepository.flush(); // <-- гарантирует, что удаление зафиксировано немедленно
     }
 
     public Medicine updateFromDto(Long id, MedicineRequest dto) {
@@ -50,8 +51,9 @@ public class MedicineService {
         medicine.setManufacturer(dto.getManufacturer());
         medicine.setForm(dto.getForm());
         medicine.setDosage(dto.getDosage());
-        return medicineRepository.save(medicine);
+        return medicineRepository.saveAndFlush(medicine);
     }
+
     public Medicine createFromDto(MedicineRequest dto) {
         Medicine medicine = new Medicine();
         medicine.setName(dto.getName());
@@ -59,6 +61,6 @@ public class MedicineService {
         medicine.setManufacturer(dto.getManufacturer());
         medicine.setForm(dto.getForm());
         medicine.setDosage(dto.getDosage());
-        return medicineRepository.save(medicine);
+        return medicineRepository.saveAndFlush(medicine);
     }
 }
