@@ -8,9 +8,6 @@ import java.util.List;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
-    // Например, все товары в конкретной аптеке:
     List<Stock> findByPharmacyId(Long pharmacyId);
-
-    // Или все остатки определенного лекарства:
     List<Stock> findByMedicineId(Long medicineId);
 }

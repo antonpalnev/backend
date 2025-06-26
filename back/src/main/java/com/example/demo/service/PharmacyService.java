@@ -2,7 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.dto.PharmacyRequest;
 import com.example.demo.entity.Pharmacy;
+import com.example.demo.entity.Stock;
 import com.example.demo.repository.PharmacyRepository;
+import com.example.demo.repository.StockRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +13,11 @@ import java.util.List;
 public class PharmacyService {
 
     private final PharmacyRepository pharmacyRepository;
+    private final StockRepository stockRepository;
 
-    public PharmacyService(PharmacyRepository pharmacyRepository) {
+    public PharmacyService(PharmacyRepository pharmacyRepository, StockRepository stockRepository) {
         this.pharmacyRepository = pharmacyRepository;
+        this.stockRepository = stockRepository;
     }
 
     public List<Pharmacy> getAll() {
@@ -36,20 +40,24 @@ public class PharmacyService {
         return pharmacyRepository.saveAndFlush(existing);
     }
 
+    // Главное изменение — каскадное удаление stock!
     public void delete(Long id) {
+        List<Stock> stocks = stockRepository.findByPharmacyId(id);
+        stockRepository.deleteAll(stocks);
+        stockRepository.flush();
         pharmacyRepository.deleteById(id);
         pharmacyRepository.flush();
     }
 
-    public Pharmacy createFromDto(PharmacyRequest dto) {
-        Pharmacy pharmacy = new Pharmacy();
+    public Pharmacy updateFromDto(Long id, PharmacyRequest dto) {
+        Pharmacy pharmacy = getById(id);
         pharmacy.setAddress(dto.getAddress());
         pharmacy.setPhone(dto.getPhone());
         return pharmacyRepository.saveAndFlush(pharmacy);
     }
 
-    public Pharmacy updateFromDto(Long id, PharmacyRequest dto) {
-        Pharmacy pharmacy = getById(id);
+    public Pharmacy createFromDto(PharmacyRequest dto) {
+        Pharmacy pharmacy = new Pharmacy();
         pharmacy.setAddress(dto.getAddress());
         pharmacy.setPhone(dto.getPhone());
         return pharmacyRepository.saveAndFlush(pharmacy);
